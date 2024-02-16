@@ -1,4 +1,5 @@
 const Tour = require("../models/tourModel");
+const MongoAPIFeatures = require("../utils");
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = 5;
@@ -9,50 +10,13 @@ exports.aliasTopTours = (req, res, next) => {
 
 exports.getAllTours = async (req, res) => {
   try {
-    // BUILDING QUERY FOR FILTERING
-    const excludedFields = ["sort", "limit", "page", "fields"];
-    const filterObj = { ...req.query };
+    const apiFeatures = new MongoAPIFeatures(Tour.find(), req.query)
+      .filter()
+      .paginate()
+      .select()
+      .sort();
 
-    excludedFields.forEach((field) => {
-      delete filterObj[field];
-    });
-
-    // RELATIONAL FILTERING
-    let filterStr = JSON.stringify(filterObj);
-    filterStr = filterStr.replace(
-      /\b(gte|gt|lt|lte)\b/g,
-      (match) => `$${match}`,
-    );
-
-    let query = Tour.find(JSON.parse(filterStr));
-
-    // SORTING
-    if (req.query.sort) {
-      const sortBy = req.query.sort.replaceAll(",", " ");
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort("-createdAt");
-    }
-
-    // Selecting the Fields Sent
-    if (req.query.fields) {
-      const fields = req.query.fields.replaceAll(",", " ");
-      query = query.select(fields);
-    } else {
-      query = query.select("-__v -createdAt -updatedAt");
-    }
-
-    // Pagination
-    const page = +req.query.page || 1;
-    const limit = +req.query.limit || 10;
-    const skip = (page - 1) * limit;
-
-    const numDocs = await Tour.countDocuments();
-
-    if (numDocs <= skip) throw new Error("No such page");
-    query = query.skip(skip).limit(limit);
-
-    const tours = await query;
+    const tours = await apiFeatures.query;
 
     res.status(200).json({
       status: "success",
