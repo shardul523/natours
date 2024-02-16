@@ -1,5 +1,12 @@
 const Tour = require("../models/tourModel");
 
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = 5;
+  req.query.sort = "-ratingsAverage,price";
+  req.query.fields = "names,price,ratingsAverage,difficulty,summary";
+  next();
+};
+
 exports.getAllTours = async (req, res) => {
   try {
     // BUILDING QUERY FOR FILTERING
@@ -21,11 +28,29 @@ exports.getAllTours = async (req, res) => {
 
     // SORTING
     if (req.query.sort) {
-      const sortBy = req.query.sort.replace(",", " ");
+      const sortBy = req.query.sort.replaceAll(",", " ");
       query = query.sort(sortBy);
     } else {
       query = query.sort("-createdAt");
     }
+
+    // Selecting the Fields Sent
+    if (req.query.fields) {
+      const fields = req.query.fields.replaceAll(",", " ");
+      query = query.select(fields);
+    } else {
+      query = query.select("-__v -createdAt -updatedAt");
+    }
+
+    // Pagination
+    const page = +req.query.page || 1;
+    const limit = +req.query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const numDocs = await Tour.countDocuments();
+
+    if (numDocs <= skip) throw new Error("No such page");
+    query = query.skip(skip).limit(limit);
 
     const tours = await query;
 
