@@ -1,5 +1,5 @@
 const Tour = require("../models/tourModel");
-const MongoAPIFeatures = require("../utils");
+const { MongoAPIFeatures } = require("../utils");
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = 5;
