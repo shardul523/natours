@@ -1,4 +1,4 @@
-const Tour = require("../models/tourModel");
+const { Tour } = require("../models");
 const { MongoAPIFeatures, catchAsync, AppError } = require("../utils");
 
 exports.aliasTopTours = (req, res, next) => {

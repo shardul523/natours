@@ -19,6 +19,7 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, "A user must have a password!"],
       minlength: 8,
+      select: false,
     },
     confirmPassword: {
       type: String,
@@ -30,9 +31,23 @@ const userSchema = mongoose.Schema(
         message: "Passwords do not match!",
       },
     },
+    passwordChangedAt: Date,
   },
   { timestamps: true },
 );
+
+userSchema.methods.passwordCheck = async function (candidatePass, hashedPass) {
+  const isCorrect = await bcrypt.compare(candidatePass, hashedPass);
+  return isCorrect;
+};
+
+userSchema.methods.passwordTokenInSync = function (issuedTime) {
+  if (this.passwordChangedAt) {
+    return this.passwordChangedAt < issuedTime;
+  }
+
+  return true;
+};
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return;
