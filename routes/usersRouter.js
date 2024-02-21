@@ -7,7 +7,9 @@ const router = express.Router();
 router.post("/signup", controllers.auth.signUp);
 router.post("/login", controllers.auth.login);
 
-router.use(controllers.auth.isAuthorized);
+router.route("/forgot-password").post(controllers.auth.forgotPassword);
+
+router.use(controllers.auth.isAuthenticated);
 
 router
   .route("/")

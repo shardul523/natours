@@ -1,3 +1,4 @@
+const crypto = require("crypto"); // less costly than crypto; for simple encryption
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
@@ -32,6 +33,13 @@ const userSchema = mongoose.Schema(
       },
     },
     passwordChangedAt: Date,
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    passwordResetToken: String,
+    passwordResetExpiresIn: Date,
   },
   { timestamps: true },
 );
@@ -47,6 +55,21 @@ userSchema.methods.passwordTokenInSync = function (issuedTime) {
   }
 
   return true;
+};
+
+userSchema.methods.generatePassResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.passwordResetExpiresIn = Date.now() + 10 * 60 * 1000;
+
+  console.log("Reset Token:", resetToken);
+
+  return resetToken;
 };
 
 userSchema.pre("save", async function (next) {

@@ -4,11 +4,13 @@ const controllers = require("../controllers");
 
 const router = express.Router();
 
+router.use(controllers.auth.isAuthenticated);
+
 router
-  .route("/get-monthly-plans/:year")
+  .route("/monthly-plans/:year")
   .get(controllers.tours.getMonthlyPlansByYear);
 
-router.route("/get-tours-stat").get(controllers.tours.getToursStat);
+router.route("/tours-stat").get(controllers.tours.getToursStat);
 
 router
   .route("/top-tours")
@@ -23,6 +25,9 @@ router
   .route("/:id")
   .get(controllers.tours.getTourById)
   .patch(controllers.tours.updateTourById)
-  .delete(controllers.tours.deleteTourById);
+  .delete(
+    controllers.auth.isAuthorized("admin"),
+    controllers.tours.deleteTourById,
+  );
 
 module.exports = router;
