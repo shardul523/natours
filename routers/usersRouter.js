@@ -8,6 +8,7 @@ router.post("/signup", controllers.auth.signUp);
 router.post("/login", controllers.auth.login);
 
 router.route("/forgot-password").post(controllers.auth.forgotPassword);
+router.route("/reset-password/:tokens").patch();
 
 router.use(controllers.auth.isAuthenticated);
 

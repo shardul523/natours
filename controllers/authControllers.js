@@ -1,8 +1,9 @@
+const crypto = require("crypto");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 
 const { User } = require("../models");
-const { catchAsync, AppError } = require("../utils");
+const { catchAsync, AppError, sendEmail } = require("../utils");
 
 const SECRET_KEY = process.env.JWT_SECRET;
 const EXPIRES_IN = process.env.JWT_EXPIRES_IN;
@@ -108,7 +109,58 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   if (!user) return next(new AppError("No user with this email exists", 400));
 
   const resetToken = user.generatePassResetToken();
-  user.save({ validateModifiedOnly: true });
 
-  res.send("Token generated");
+  const resetPasswordLink = `${req.protocol}://${req.get("host")}/api/v1/users/reset-password/${resetToken}`;
+
+  const message = `
+Forgot your password ?
+
+Send a PATCH request on the link given below to reset your password -
+
+${resetPasswordLink}
+
+If you didn't forget your password, please ignore this email!
+`;
+
+  try {
+    await sendEmail({
+      recipient: email,
+      subject: "PASSWORD RESET LINK (valid for 10 min)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to the mail!",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpiresIn = undefined;
+
+    next(
+      new AppError(
+        "There was an error in sending the email! Try again later...",
+        500,
+      ),
+    );
+  }
+
+  user.save({ validateModifiedOnly: true });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // 1) Check if token is valid and user exists
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.query.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpiresIn: { $gt: Date.now() },
+  });
+
+  if (!user) return next(new AppError("Token is invalid or has expired", 400));
+
+  // 2) Reset The Password
 });

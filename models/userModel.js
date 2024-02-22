@@ -72,6 +72,8 @@ userSchema.methods.generatePassResetToken = function () {
   return resetToken;
 };
 
+userSchema.methods.resetPassword = (password, confirm);
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return;
 
