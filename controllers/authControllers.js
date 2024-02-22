@@ -14,6 +14,14 @@ const signToken = async (id) =>
 const verifyToken = async (token) =>
   await promisify(jwt.verify)(token, SECRET_KEY);
 
+const createAndSendToken = async (user, statusCode, res) => {
+  const token = await signToken(user._id);
+  res.status(statusCode).json({
+    status: "success",
+    token,
+  });
+};
+
 exports.signUp = catchAsync(async (req, res) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -24,13 +32,7 @@ exports.signUp = catchAsync(async (req, res) => {
     role: req.body.role,
   });
 
-  const token = await signToken(newUser._id);
-
-  res.status(201).json({
-    status: "success",
-    token,
-    data: { user: newUser },
-  });
+  createAndSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -46,12 +48,13 @@ exports.login = catchAsync(async (req, res, next) => {
 
   if (!isValidAuth) return next(new AppError("Invalid email or password", 401));
 
-  const token = await signToken(user._id);
+  await createAndSendToken(user, 200, res);
+  // const token = await signToken(user._id);
 
-  res.status(200).json({
-    status: "success",
-    token,
-  });
+  // res.status(200).json({
+  //   status: "success",
+  //   token,
+  // });
 });
 
 exports.isAuthenticated = catchAsync(async (req, res, next) => {
@@ -80,7 +83,6 @@ exports.isAuthenticated = catchAsync(async (req, res, next) => {
       "The user specified by the token no longer exists. Please login again!";
     return next(new AppError(message, 401));
   }
-
   // 4) Check if password has changed since the token was issued
   if (!user.passwordTokenInSync(iat))
     return next(new AppError("The password was changed, please login again!"));
@@ -165,11 +167,23 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 2) Reset The Password
   const { password, confirmPassword } = req.body;
 
-  user.resetPassword(password, confirmPassword);
+  user.updatePassword(password, confirmPassword);
   await user.save();
+  await createAndSendToken(user, 200, res);
+});
 
-  res.status(200).json({
-    status: "success",
-    message: "Password has been reset! Please login again.",
-  });
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Check if original password matches
+  const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+  // Since password is not selected by default
+  req.user = await User.findById(req.user._id).select("+password");
+
+  if (!(await req.user.passwordCheck(oldPassword, req.user.password)))
+    return next(new AppError("Incorrect old password! Please try again!", 400));
+
+  req.user.updatePassword(newPassword, confirmNewPassword);
+  await req.user.save();
+
+  createAndSendToken(req.user, 200, res);
 });

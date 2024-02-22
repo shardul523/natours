@@ -51,7 +51,8 @@ userSchema.methods.passwordCheck = async function (candidatePass, hashedPass) {
 
 userSchema.methods.passwordTokenInSync = function (issuedTime) {
   if (this.passwordChangedAt) {
-    return this.passwordChangedAt < issuedTime;
+    console.log("Issued time: ", new Date(issuedTime).toISOString());
+    return this.passwordChangedAt < issuedTime + Date.now();
   }
 
   return true;
@@ -70,19 +71,12 @@ userSchema.methods.generatePassResetToken = function () {
   return resetToken;
 };
 
-userSchema.methods.resetPassword = function (password, confirmPassword) {
+userSchema.methods.updatePassword = function (password, confirmPassword) {
   this.password = password;
   this.confirmPassword = confirmPassword;
   this.passwordResetToken = undefined;
   this.passwordResetExpiresIn = undefined;
 };
-
-userSchema.pre("save", async function (next) {
-  if (this.isModified("password") && !this.isNew)
-    this.passwordChangedAt = Date.now();
-
-  next();
-});
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -92,6 +86,13 @@ userSchema.pre("save", async function (next) {
 
   // PREVENTING THE CONFIRM PASSWORD FIELD FROM BEING STORED
   this.confirmPassword = undefined;
+
+  next();
+});
+
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password") && !this.isNew)
+    this.passwordChangedAt = Date.now() - 10000;
 
   next();
 });

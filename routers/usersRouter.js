@@ -12,6 +12,8 @@ router.route("/reset-password/:token").patch(controllers.auth.resetPassword);
 
 router.use(controllers.auth.isAuthenticated);
 
+router.patch("/update-my-password", controllers.auth.updatePassword);
+
 router
   .route("/")
   .get(controllers.users.getAllUsers)
