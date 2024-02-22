@@ -152,7 +152,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1) Check if token is valid and user exists
   const hashedToken = crypto
     .createHash("sha256")
-    .update(req.query.token)
+    .update(req.params.token)
     .digest("hex");
 
   const user = await User.findOne({
@@ -163,4 +163,13 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   if (!user) return next(new AppError("Token is invalid or has expired", 400));
 
   // 2) Reset The Password
+  const { password, confirmPassword } = req.body;
+
+  user.resetPassword(password, confirmPassword);
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Password has been reset! Please login again.",
+  });
 });

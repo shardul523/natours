@@ -67,15 +67,25 @@ userSchema.methods.generatePassResetToken = function () {
 
   this.passwordResetExpiresIn = Date.now() + 10 * 60 * 1000;
 
-  console.log("Reset Token:", resetToken);
-
   return resetToken;
 };
 
-userSchema.methods.resetPassword = (password, confirm);
+userSchema.methods.resetPassword = function (password, confirmPassword) {
+  this.password = password;
+  this.confirmPassword = confirmPassword;
+  this.passwordResetToken = undefined;
+  this.passwordResetExpiresIn = undefined;
+};
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return;
+  if (this.isModified("password") && !this.isNew)
+    this.passwordChangedAt = Date.now();
+
+  next();
+});
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
   // HASH THE PASSWORD
   this.password = await bcrypt.hash(this.password, 12);
