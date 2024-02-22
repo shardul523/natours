@@ -8,6 +8,7 @@ const userSchema = mongoose.Schema(
     name: {
       type: String,
       required: [true, "A user must have a name!"],
+      minlength: [2, "A name nust be longer than a single character!"],
     },
     email: {
       type: String,
@@ -40,6 +41,11 @@ const userSchema = mongoose.Schema(
     },
     passwordResetToken: String,
     passwordResetExpiresIn: Date,
+    isActive: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
   },
   { timestamps: true },
 );
@@ -51,8 +57,7 @@ userSchema.methods.passwordCheck = async function (candidatePass, hashedPass) {
 
 userSchema.methods.passwordTokenInSync = function (issuedTime) {
   if (this.passwordChangedAt) {
-    console.log("Issued time: ", new Date(issuedTime).toISOString());
-    return this.passwordChangedAt < issuedTime + Date.now();
+    return this.passwordChangedAt < issuedTime * 1000;
   }
 
   return true;
@@ -90,10 +95,15 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", function (next) {
   if (this.isModified("password") && !this.isNew)
     this.passwordChangedAt = Date.now() - 10000;
 
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  this.find({ isActive: { $ne: false } });
   next();
 });
 
