@@ -24,7 +24,7 @@ app.use(express.static("public"));
 app.use(express.json());
 
 app.use(hpp({ whitelist: ["ratingsAverage", "price"] }));
-app.use(body().escape());
+app.use([body("*").escape()]);
 
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
