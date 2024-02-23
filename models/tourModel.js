@@ -15,6 +15,7 @@ const tourSchema = mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, "A Tour must have a specified difficulty"],
+      enum: ["easy", "medium", "difficult"],
     },
     maxGroupSize: {
       type: Number,
@@ -48,6 +49,29 @@ const tourSchema = mongoose.Schema(
     },
     images: [String],
     startDates: [Date],
+    startLocation: {
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
   },
   {
     timestamps: true,
