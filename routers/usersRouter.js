@@ -1,8 +1,6 @@
-const express = require("express");
+const router = require("express").Router();
 
 const controllers = require("../controllers");
-
-const router = express.Router();
 
 router.post("/signup", controllers.auth.signUp);
 router.post("/login", controllers.auth.login);
@@ -13,8 +11,12 @@ router.route("/reset-password/:token").patch(controllers.auth.resetPassword);
 router.use(controllers.auth.isAuthenticated);
 
 router.patch("/update-my-password", controllers.auth.updatePassword);
-router.patch("/update-my-details", controllers.users.updateDetails);
-router.delete("/delete-my-account", controllers.users.deleteAccount);
+
+router
+  .route("/me")
+  .get(controllers.users.getMe, controllers.users.getUserById)
+  .patch(controllers.users.updateMe)
+  .delete(controllers.users.deleteMe);
 
 router.use(controllers.auth.isAuthorized("admin"));
 

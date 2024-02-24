@@ -6,7 +6,12 @@ exports.getAllUsers = factory.getAll(User);
 
 exports.getUserById = factory.getOne(User);
 
-exports.updateDetails = catchAsync(async (req, res, next) => {
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
+exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Check if password is within the given fields
   if (req.body.password || req.body.confirmPassword)
     return next(
@@ -31,7 +36,7 @@ exports.updateDetails = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.deleteAccount = catchAsync(async (req, res) => {
+exports.deleteMe = catchAsync(async (req, res) => {
   await User.findByIdAndUpdate(req.user.id, { isActive: false });
 
   res.status(204).json({
