@@ -31,6 +31,7 @@ if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 app.use("/api", limiter);
 app.use("/api/v1/tours", routers.tours);
 app.use("/api/v1/users", routers.users);
+app.use("/api/v1/reviews", routers.reviews);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Cannot reach ${req.originalUrl} on the server!`, 404));
