@@ -4,9 +4,8 @@ const controllers = require("../controllers");
 
 router.post("/signup", controllers.auth.signUp);
 router.post("/login", controllers.auth.login);
-
-router.route("/forgot-password").post(controllers.auth.forgotPassword);
-router.route("/reset-password/:token").patch(controllers.auth.resetPassword);
+router.post("/forgot-password", controllers.auth.forgotPassword);
+router.patch("/reset-password/:token", controllers.auth.resetPassword);
 
 router.use(controllers.auth.isAuthenticated);
 

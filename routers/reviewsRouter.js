@@ -10,12 +10,18 @@ router
     controller.reviews.setTourAndUserIds,
     controller.reviews.createNewReview,
   )
-  .get(controller.auth.isAuthorized("user"), controller.reviews.getAllReviews);
+  .get(controller.reviews.getAllReviews);
 
 router
   .route("/:id")
   .get(controller.reviews.getReviewById)
-  .patch(controller.reviews.updateReviewById)
-  .delete(controller.reviews.deleteReviewById);
+  .patch(
+    controller.auth.isAuthorized("user", "admin"),
+    controller.reviews.updateReviewById,
+  )
+  .delete(
+    controller.auth.isAuthorized("user", "admin"),
+    controller.reviews.deleteReviewById,
+  );
 
 module.exports = router;
