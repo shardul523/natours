@@ -16,6 +16,8 @@ router.patch("/update-my-password", controllers.auth.updatePassword);
 router.patch("/update-my-details", controllers.users.updateDetails);
 router.delete("/delete-my-account", controllers.users.deleteAccount);
 
+router.use(controllers.auth.isAuthorized("admin"));
+
 router
   .route("/")
   .get(controllers.users.getAllUsers)

@@ -1,6 +1,6 @@
 const { Tour } = require("../models");
-const { MongoAPIFeatures, catchAsync, AppError } = require("../utils");
-const { deleteOne } = require("./handlersfactory");
+const { catchAsync } = require("../utils");
+const factory = require("./handlersfactory");
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = 5;
@@ -9,59 +9,15 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res) => {
-  const apiFeatures = new MongoAPIFeatures(Tour.find(), req.query)
-    .filter()
-    .paginate()
-    .select()
-    .sort();
+exports.getAllTours = factory.getAll(Tour);
 
-  const tours = await apiFeatures.query;
+exports.createNewTour = factory.createOne(Tour);
 
-  res.status(200).json({
-    status: "success",
-    results: tours.length,
-    data: { tours },
-  });
-});
+exports.getTourById = factory.getOne(Tour, { path: "reviews" });
 
-exports.createNewTour = catchAsync(async (req, res) => {
-  const newTour = await Tour.create(req.body);
+exports.updateTourById = factory.updateOne(Tour);
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      tour: newTour,
-    },
-  });
-});
-
-exports.getTourById = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate("reviews");
-
-  if (!tour) return next(new AppError("No such tour was found!", 404));
-
-  res.status(200).json({
-    status: "success",
-    data: { tour },
-  });
-});
-
-exports.updateTourById = catchAsync(async (req, res, next) => {
-  const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!updatedTour) return next(new AppError("No such tour was found!", 404));
-
-  res.status(200).json({
-    status: true,
-    data: { tour: updatedTour },
-  });
-});
-
-exports.deleteTourById = deleteOne(Tour);
+exports.deleteTourById = factory.deleteOne(Tour);
 
 exports.getToursStat = catchAsync(async (req, res) => {
   const stats = await Tour.aggregate([

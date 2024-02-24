@@ -23,6 +23,8 @@ router
   .get(controllers.tours.getAllTours)
   .post(controllers.tours.createNewTour);
 
+router.use(controllers.auth.isAuthorized("admin"));
+
 router
   .route("/:id")
   .get(controllers.tours.getTourById)

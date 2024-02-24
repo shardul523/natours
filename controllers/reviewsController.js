@@ -1,33 +1,19 @@
 const { Review } = require("../models");
-const { catchAsync } = require("../utils");
-const { deleteOne } = require("./handlersfactory");
+// const { catchAsync } = require("../utils");
+const factory = require("./handlersfactory");
 
-exports.createNewReview = catchAsync(async (req, res) => {
-  const { review, rating } = req.body;
-  let { tour, user } = req.body;
+exports.setTourAndUserIds = (req, res, next) => {
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.user.id;
+  next();
+};
 
-  if (!tour) tour = req.params.tourId;
-  if (!user) user = req.user.id;
+exports.createNewReview = factory.createOne(Review);
 
-  const newReview = await Review.create({ review, rating, tour, user });
+exports.getAllReviews = factory.getAll(Review);
 
-  res.status(201).json({
-    status: "success",
-    data: { review: newReview },
-  });
-});
+exports.updateReviewById = factory.updateOne(Review);
 
-exports.getAllReviews = catchAsync(async (req, res) => {
-  const filter = {};
+exports.deleteReviewById = factory.deleteOne(Review);
 
-  if (req.params.tourId) filter.tour = req.params.tourId;
-
-  const reviews = await Review.find(filter);
-
-  res.status(200).json({
-    status: "success",
-    data: { reviews },
-  });
-});
-
-exports.deleteReviewById = deleteOne(Review);
+exports.getReviewById = factory.createOne(Review);

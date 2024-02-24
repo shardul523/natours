@@ -1,29 +1,10 @@
 const { User } = require("../models");
 const { catchAsync, AppError } = require("../utils");
-const { deleteOne } = require("./handlersfactory");
+const factory = require("./handlersfactory");
 
-exports.getAllUsers = catchAsync(async (req, res) => {
-  const users = await User.find();
+exports.getAllUsers = factory.getAll(User);
 
-  res.status(200).json({
-    status: "success",
-    data: { users },
-  });
-});
-
-exports.createNewUser = (req, res) => {
-  res.send("New User created");
-};
-
-exports.getUserById = (req, res) => {
-  res.send(`Received user with id ${req.params.id}`);
-};
-
-exports.updateUserById = (req, res) => {
-  res.send(`Updated user with id ${req.params.id}`);
-};
-
-exports.deleteUserById = deleteOne(User);
+exports.getUserById = factory.getOne(User);
 
 exports.updateDetails = catchAsync(async (req, res, next) => {
   // 1) Check if password is within the given fields
@@ -58,3 +39,11 @@ exports.deleteAccount = catchAsync(async (req, res) => {
     data: null,
   });
 });
+
+// Only for admin
+
+exports.updateUserById = factory.updateOne(User);
+
+exports.deleteUserById = factory.deleteOne(User);
+
+exports.createNewUser = factory.createOne(User);
