@@ -1,9 +1,11 @@
 const express = require("express");
 
 const controllers = require("../controllers");
+const reviewRouter = require("./reviewsRouter");
 
 const router = express.Router();
 
+router.use("/:tourId/reviews", reviewRouter);
 router.use(controllers.auth.isAuthenticated);
 
 router

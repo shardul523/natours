@@ -1,5 +1,6 @@
 const { User } = require("../models");
 const { catchAsync, AppError } = require("../utils");
+const { deleteOne } = require("./handlersfactory");
 
 exports.getAllUsers = catchAsync(async (req, res) => {
   const users = await User.find();
@@ -22,9 +23,7 @@ exports.updateUserById = (req, res) => {
   res.send(`Updated user with id ${req.params.id}`);
 };
 
-exports.deleteUserById = (req, res) => {
-  res.send(`Deleted user with id ${req.params.id}`);
-};
+exports.deleteUserById = deleteOne(User);
 
 exports.updateDetails = catchAsync(async (req, res, next) => {
   // 1) Check if password is within the given fields

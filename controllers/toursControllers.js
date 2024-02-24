@@ -1,5 +1,6 @@
 const { Tour } = require("../models");
 const { MongoAPIFeatures, catchAsync, AppError } = require("../utils");
+const { deleteOne } = require("./handlersfactory");
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = 5;
@@ -36,7 +37,7 @@ exports.createNewTour = catchAsync(async (req, res) => {
 });
 
 exports.getTourById = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate("reviews");
 
   if (!tour) return next(new AppError("No such tour was found!", 404));
 
@@ -60,16 +61,7 @@ exports.updateTourById = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.deleteTourById = catchAsync(async (req, res) => {
-  await Tour.findByIdAndDelete(req.params.id);
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      message: "Deletion successful",
-    },
-  });
-});
+exports.deleteTourById = deleteOne(Tour);
 
 exports.getToursStat = catchAsync(async (req, res) => {
   const stats = await Tour.aggregate([

@@ -8,7 +8,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 
 const { AppError } = require("./utils");
 const { error: globalErrorHandler } = require("./controllers");
-const routers = require("./routers");
+const apiRouter = require("./routers");
 
 const app = express();
 const limiter = rateLimit({
@@ -29,9 +29,7 @@ app.use([body("*").escape()]);
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 app.use("/api", limiter);
-app.use("/api/v1/tours", routers.tours);
-app.use("/api/v1/users", routers.users);
-app.use("/api/v1/reviews", routers.reviews);
+app.use("/api/v1", apiRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Cannot reach ${req.originalUrl} on the server!`, 404));

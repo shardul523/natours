@@ -1,9 +1,16 @@
-const router = require("express").Router();
+const router = require("express").Router({ mergeParams: true });
 const controller = require("../controllers");
+
+router.use(controller.auth.isAuthenticated);
 
 router
   .route("/")
-  .post(controller.reviews.createNewReview)
-  .get(controller.reviews.getAllReviews);
+  .post(
+    controller.auth.isAuthorized("user"),
+    controller.reviews.createNewReview,
+  )
+  .get(controller.auth.isAuthorized("user"), controller.reviews.getAllReviews);
+
+router.route("/:id").delete(controller.reviews.deleteReviewById);
 
 module.exports = router;
