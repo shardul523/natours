@@ -96,11 +96,6 @@ tourSchema.virtual("durationInWeeks").get(function () {
   return this.duration / 7;
 });
 
-// tourSchema.pre(/^find/, function (next) {
-//   this.populate("reviews");
-//   next();
-// });
-
 const Tour = mongoose.model("Tour", tourSchema);
 
 module.exports = Tour;
