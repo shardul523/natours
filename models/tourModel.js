@@ -86,6 +86,10 @@ const tourSchema = mongoose.Schema(
   },
 );
 
+tourSchema.virtual("slug").get(function () {
+  return this.name.toLowerCase().replaceAll(" ", "-");
+});
+
 tourSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "tour",
