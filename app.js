@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
@@ -9,8 +10,13 @@ const mongoSanitize = require("express-mongo-sanitize");
 const { AppError } = require("./utils");
 const { error: globalErrorHandler } = require("./controllers");
 const apiRouter = require("./routers");
+const viewsRouter = require("./routers/viewsRouter");
 
 const app = express();
+
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 1000,
@@ -28,6 +34,7 @@ app.use([body("*").escape()]);
 
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
+app.use("/", viewsRouter);
 app.use("/api", limiter);
 app.use("/api/v1", apiRouter);
 
