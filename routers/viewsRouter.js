@@ -4,6 +4,6 @@ const controllers = require("../controllers");
 
 router.get("/", controllers.views.getToursOverview);
 
-router.get("/tour", controllers.views.getTour);
+router.get("/tour/:slug", controllers.views.getTour);
 
 module.exports = router;

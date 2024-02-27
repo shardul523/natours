@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const tourSchema = mongoose.Schema(
   {
@@ -76,8 +77,15 @@ const tourSchema = mongoose.Schema(
       {
         type: mongoose.Schema.ObjectId,
         ref: "User",
+        required: [true, "A tour must have a slug"],
       },
     ],
+    slug: {
+      type: String,
+      default: function () {
+        return slugify(this.name, { lower: true });
+      },
+    },
   },
   {
     timestamps: true,
@@ -86,19 +94,22 @@ const tourSchema = mongoose.Schema(
   },
 );
 
-tourSchema.virtual("slug").get(function () {
-  return this.name.toLowerCase().replaceAll(" ", "-");
-});
-
 tourSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "tour",
   localField: "_id",
 });
 
+tourSchema.pre(/^find/, function (next) {
+  this.populate({ path: "guides", fields: "name photo" });
+  next();
+});
+
 tourSchema.virtual("durationInWeeks").get(function () {
   return this.duration / 7;
 });
+
+tourSchema.index({ slug: 1 }, { unique: true });
 
 const Tour = mongoose.model("Tour", tourSchema);
 

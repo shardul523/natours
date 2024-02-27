@@ -53,10 +53,10 @@ reviewSchema.static("calcRatingStats", async function (tourId) {
 
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
-// reviewSchema.pre(/^find/, function (next) {
-//   this.select("-__v").populate([{ path: "user", select: "name photo" }]);
-//   next();
-// });
+reviewSchema.pre(/^find/, function (next) {
+  this.select("-__v").populate([{ path: "user", select: "name photo" }]);
+  next();
+});
 
 reviewSchema.pre(/^findOneAnd/, async function (next) {
   // In case of review updation / deletion, we first need to get the document
