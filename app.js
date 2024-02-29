@@ -32,6 +32,30 @@ app.use(express.json());
 app.use(hpp({ whitelist: ["ratingsAverage", "price"] }));
 app.use([body("*").escape()]);
 
+const scriptSrcUrls = ["https://unpkg.com/", "https://tile.openstreetmap.org"];
+const styleSrcUrls = [
+  "https://unpkg.com/",
+  "https://tile.openstreetmap.org",
+  "https://fonts.googleapis.com/",
+];
+const connectSrcUrls = ["https://unpkg.com", "https://tile.openstreetmap.org"];
+const fontSrcUrls = ["fonts.googleapis.com", "fonts.gstatic.com"];
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", "blob:"],
+      objectSrc: [],
+      imgSrc: ["'self'", "blob:", "data:", "https:"],
+      fontSrc: ["'self'", ...fontSrcUrls],
+    },
+  }),
+);
+
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 app.use("/", viewsRouter);
