@@ -10,10 +10,10 @@ html(lang="en")
           link(href="https://fonts.googleapis.com/css?family=Lato:300,300i,700"
       rel="stylesheet")
 
-        - if (!tour)
+        - if (!title)
           title Natours | Exciting tours for adventurous people
         - else 
-          title Natours | #{tour.name}
+          title Natours | #{title}
 
     body 
         include _header

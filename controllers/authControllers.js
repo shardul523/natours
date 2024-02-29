@@ -16,6 +16,7 @@ const verifyToken = async (token) =>
 
 const createAndSendToken = async (user, statusCode, res) => {
   const token = await signToken(user._id);
+  res.cookie("jwt", token);
   res.status(statusCode).json({
     status: "success",
     token,
@@ -66,6 +67,7 @@ exports.isAuthenticated = catchAsync(async (req, res, next) => {
     req.header("Authorization").startsWith("Bearer")
   )
     token = req.header("Authorization").replace("Bearer", "").trim();
+  else if (req.cookies.jwt) token = req.cookies.jwt;
 
   if (!token)
     return next(
