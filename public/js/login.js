@@ -11,6 +11,8 @@ form.addEventListener("submit", (e) => {
 
   axios
     .post("/api/v1/users/login", { email, password })
-    .then((res) => console.log(res))
+    .then((res) => {
+      if (res.data.status === "success") location.replace("/");
+    })
     .catch((err) => console.error(err.response));
 });

@@ -75,7 +75,7 @@ exports.isAuthenticated = catchAsync(async (req, res, next) => {
     );
 
   // 2) Verify the token
-  const { id, iat } = await verifyToken(token, SECRET_KEY);
+  const { id, iat } = await verifyToken(token);
 
   // 3) Check if user still exists
   const user = await User.findById(id);
@@ -188,4 +188,22 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await req.user.save();
 
   createAndSendToken(req.user, 200, res);
+});
+
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  if (!req.cookies.jwt) return next();
+
+  // 1) Verify the token is valid
+  const token = await verifyToken(req.cookies.jwt);
+
+  // 2) Check if user exists
+  const user = await User.findById(token.id);
+
+  if (!user) return next();
+
+  // 3) Check if password has changed since token issue
+  if (!user.passwordTokenInSync(token.iat)) return next();
+
+  res.locals.user = user;
+  next();
 });
