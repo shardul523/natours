@@ -1,28 +1,28 @@
 /* eslint-disable */
 
-const locations = JSON.parse(document.getElementById("map").dataset.locations);
+export function showMap(mapbox) {
+  const locations = JSON.parse(mapbox.dataset.locations);
 
-console.log(locations);
+  const map = L.map("map", { zoomControl: false });
 
-const map = L.map("map", { zoomControl: false });
+  L.tileLayer(
+    "https://tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=456347615ad9463eb3dd8150178d9576",
+    { maxZoom: 19 },
+  ).addTo(map);
 
-L.tileLayer(
-  "https://tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=456347615ad9463eb3dd8150178d9576",
-  { maxZoom: 19 },
-).addTo(map);
+  const points = [];
+  locations.forEach((loc) => {
+    points.push([loc.coordinates[1], loc.coordinates[0]]);
+    L.marker([loc.coordinates[1], loc.coordinates[0]])
+      .addTo(map)
+      .bindPopup(`<p>Day ${loc.day}: ${loc.description}</p>`, {
+        autoClose: false,
+      })
+      .openPopup();
+  });
 
-const points = [];
-locations.forEach((loc) => {
-  points.push([loc.coordinates[1], loc.coordinates[0]]);
-  L.marker([loc.coordinates[1], loc.coordinates[0]])
-    .addTo(map)
-    .bindPopup(`<p>Day ${loc.day}: ${loc.description}</p>`, {
-      autoClose: false,
-    })
-    .openPopup();
-});
+  const bounds = L.latLngBounds(points).pad(0.5);
+  map.fitBounds(bounds);
 
-const bounds = L.latLngBounds(points).pad(0.5);
-map.fitBounds(bounds);
-
-map.scrollWheelZoom.disable();
+  map.scrollWheelZoom.disable();
+}

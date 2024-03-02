@@ -9,11 +9,12 @@ html(lang="en")
           link(rel="shortcut icon", href="/img/favicon.png", type="image/png")
           link(href="https://fonts.googleapis.com/css?family=Lato:300,300i,700"
       rel="stylesheet")
+          script(src="/js/bundle/index.js" defer) 
 
-        - if (!title)
-          title Natours | Exciting tours for adventurous people
-        - else 
+        if title
           title Natours | #{title}
+        else 
+          title Natours | Exciting tours for adventurous people
 
     body 
         include _header

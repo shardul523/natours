@@ -29,7 +29,7 @@ export function login(email, password) {
       }
     })
     .catch((err) => {
-      const alert = showAlert("error", err.data.message);
+      const alert = showAlert("error", err.response.data.message);
       setTimeout(() => alert.remove(), 2000);
     });
 }
