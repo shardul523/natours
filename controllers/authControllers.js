@@ -16,7 +16,7 @@ const verifyToken = async (token) =>
 
 const createAndSendToken = async (user, statusCode, res) => {
   const token = await signToken(user._id);
-  res.cookie("jwt", token);
+  res.cookie("jwt", token, { httpOnly: true });
   res.status(statusCode).json({
     status: "success",
     token,
@@ -190,20 +190,32 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   createAndSendToken(req.user, 200, res);
 });
 
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   if (!req.cookies.jwt) return next();
 
-  // 1) Verify the token is valid
-  const token = await verifyToken(req.cookies.jwt);
+  try {
+    // 1) Verify the token is valid
+    const token = await verifyToken(req.cookies.jwt);
 
-  // 2) Check if user exists
-  const user = await User.findById(token.id);
+    // 2) Check if user exists
+    const user = await User.findById(token.id);
 
-  if (!user) return next();
+    if (!user) return next();
 
-  // 3) Check if password has changed since token issue
-  if (!user.passwordTokenInSync(token.iat)) return next();
+    // 3) Check if password has changed since token issue
+    if (!user.passwordTokenInSync(token.iat)) return next();
 
-  res.locals.user = user;
-  next();
-});
+    res.locals.user = user;
+    next();
+  } catch (err) {
+    next();
+  }
+};
+
+exports.logout = async (req, res) => {
+  res.cookie("jwt", "loggedout", { maxAge: 1000, httpOnly: true });
+  res.status(200).json({
+    status: "success",
+    message: "Successfully Logged Out",
+  });
+};

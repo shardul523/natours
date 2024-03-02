@@ -1,10 +1,11 @@
 /* eslint-disable */
 
 import { showMap } from "./map";
-import { login } from "./login";
+import { login, logout } from "./login";
 
 const mapbox = document.getElementById("map");
 const loginForm = document.querySelector(".login-form");
+const logoutBtn = document.querySelector(".nav__el--logout");
 
 if (mapbox) showMap(mapbox);
 if (loginForm) {
@@ -17,3 +18,5 @@ if (loginForm) {
     login(emailInput.value, passInput.value);
   });
 }
+
+if (logoutBtn) logoutBtn.addEventListener("click", logout);

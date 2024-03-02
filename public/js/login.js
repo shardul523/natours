@@ -33,3 +33,10 @@ export function login(email, password) {
       setTimeout(() => alert.remove(), 2000);
     });
 }
+
+export function logout() {
+  axios
+    .get("/api/v1/users/logout")
+    .then(() => location.reload())
+    .catch(() => console.error("There was an error logging out"));
+}
