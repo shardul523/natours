@@ -35,6 +35,19 @@ const sendErrResProd = (err, res) => {
   res.status(500).json({ status: "error", message: "Internal Server Error!" });
 };
 
+const websiteError = (err, res) => {
+  if (err.isOperational)
+    return res.status(err.statusCode).render("error", { msg: err.message });
+
+  if (process.env.NODE_ENV === "production") {
+    return res.status(err.statusCode).render("error", {
+      msg: "There was an unexpected error. Please try again",
+    });
+  }
+
+  res.status(err.statusCode).render("error", { msg: err });
+};
+
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
@@ -55,6 +68,8 @@ module.exports = (err, req, res, next) => {
 
   // MONGODB ERROR
   if (err.code === 11000) error = handleDuplicateNameErrorDB();
+
+  if (!req.originalUrl.startsWith("/api")) return websiteError(err, res);
 
   if (process.env.NODE_ENV === "production") return sendErrResProd(error, res);
 

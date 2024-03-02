@@ -1,8 +1,10 @@
 const { Tour } = require("../models");
-const { catchAsync } = require("../utils");
+const { catchAsync, AppError } = require("../utils");
 
-exports.getToursOverview = catchAsync(async (req, res) => {
+exports.getToursOverview = catchAsync(async (req, res, next) => {
   const tours = await Tour.find();
+
+  if (!tours) return next(new AppError("No Tours were found!", 404));
 
   res.status(200).render("overview", { tours });
 });
