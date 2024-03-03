@@ -90,7 +90,6 @@ exports.isAuthenticated = catchAsync(async (req, res, next) => {
     return next(new AppError("The password was changed, please login again!"));
 
   req.user = user;
-  res.locals.user = user;
 
   next();
 });
@@ -191,7 +190,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   createAndSendToken(req.user, 200, res);
 });
 
-exports.isLoggedIn = async (req, res, next) => {
+exports.authenticate = async (req, res, next) => {
   if (!req.cookies.jwt) return next();
 
   try {
@@ -220,3 +219,8 @@ exports.logout = async (req, res) => {
     message: "Successfully Logged Out",
   });
 };
+
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  if (res.locals.user) return next();
+  next(new AppError("Please login before accessing this route!", 400));
+});

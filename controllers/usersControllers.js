@@ -22,7 +22,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
 
   // 2) Update allowed fields
-  const allowedFields = ["name", "photo"];
+  const allowedFields = ["name", "photo", "email"];
 
   allowedFields.forEach((field) => {
     if (req.body[field]) req.user[field] = req.body[field];

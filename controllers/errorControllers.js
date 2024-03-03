@@ -65,13 +65,12 @@ module.exports = (err, req, res, next) => {
   // MONGOOSE ERROR
   if (err.name === "CastError") error = handleCastErrorDB(error);
   if (err.name === "ValidationError") error = handleValidationErrorDB(error);
-
   // MONGODB ERROR
   if (err.code === 11000) error = handleDuplicateNameErrorDB();
 
-  if (!req.originalUrl.startsWith("/api")) return websiteError(err, res);
+  if (!req.originalUrl.startsWith("/api")) return websiteError(error, res);
 
   if (process.env.NODE_ENV === "production") return sendErrResProd(error, res);
 
-  return sendErrResDev(err, res);
+  return sendErrResDev(error, res);
 };

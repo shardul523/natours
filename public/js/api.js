@@ -40,3 +40,20 @@ export function logout() {
     .then(() => location.reload())
     .catch(() => console.error("There was an error logging out"));
 }
+
+export function updateUserDetails(details) {
+  axios
+    .patch("/api/v1/users/me", details)
+    .then((res) => {
+      const { status } = res.data;
+
+      if (status !== "success") return;
+
+      const alert = showAlert("success", "User Details Updated Successfully!");
+      setTimeout(() => alert.remove(), 2000);
+    })
+    .catch((err) => {
+      const alert = showAlert("error", err.response.data.message);
+      setTimeout(() => alert.remove(), 2000);
+    });
+}

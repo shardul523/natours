@@ -2,9 +2,9 @@ const router = require("express").Router();
 
 const controllers = require("../controllers");
 
-router.use(controllers.auth.isLoggedIn);
+router.use(controllers.auth.authenticate);
 
-router.get("/me", controllers.views.getMe);
+router.get("/me", controllers.auth.isLoggedIn, controllers.views.getMe);
 
 router.get("/", controllers.views.getToursOverview);
 
