@@ -7,3 +7,8 @@ export function showAlert(type, text) {
   document.querySelector("body").insertAdjacentElement("afterbegin", alert);
   return alert;
 }
+
+export function timedAlert(type, text, timeout) {
+  const alert = showAlert(type, text);
+  setTimeout(() => alert.remove(), timeout);
+}

@@ -55,6 +55,7 @@ module.exports = (err, req, res, next) => {
   // if (process.env.NODE_ENV === "development") return sendErrResDev(err, res);
 
   let error = { ...err };
+  error.message = err.message;
 
   // HANDLING OPERATIONAL ERRORS
 

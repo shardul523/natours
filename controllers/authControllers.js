@@ -222,5 +222,6 @@ exports.logout = async (req, res) => {
 
 exports.isLoggedIn = catchAsync(async (req, res, next) => {
   if (res.locals.user) return next();
-  next(new AppError("Please login before accessing this route!", 400));
+  return res.redirect("/login");
+  // next(new AppError("Please login before accessing this route!", 400));
 });

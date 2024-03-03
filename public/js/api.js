@@ -1,6 +1,6 @@
 /* eslint-disable */
 import axios from "axios";
-import { showAlert } from "./alert";
+import { showAlert, timedAlert } from "./alert";
 // const form = document.querySelector(".form");
 // const emailInput = document.getElementById("email");
 // const passInput = document.getElementById("password");
@@ -47,13 +47,22 @@ export function updateUserDetails(details) {
     .then((res) => {
       const { status } = res.data;
 
-      if (status !== "success") return;
-
-      const alert = showAlert("success", "User Details Updated Successfully!");
-      setTimeout(() => alert.remove(), 2000);
+      if (status === "success")
+        timedAlert("success", "User Details updated successfully", 2000);
     })
-    .catch((err) => {
-      const alert = showAlert("error", err.response.data.message);
-      setTimeout(() => alert.remove(), 2000);
-    });
+    .catch((err) => timedAlert("error", err.response.data.message, 2000));
+}
+
+export async function updateUserPassword(passData) {
+  try {
+    const { data } = await axios.patch(
+      "/api/v1/users/update-my-password",
+      passData,
+    );
+    if (data.status === "success")
+      timedAlert("success", "User Password updated successfully", 2000);
+  } catch (err) {
+    console.log(err);
+    timedAlert("error", "Password not updated. Try again later.", 2000);
+  }
 }

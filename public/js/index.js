@@ -1,12 +1,13 @@
 /* eslint-disable */
 
 import { showMap } from "./map";
-import { login, logout, updateUserDetails } from "./api";
+import { login, logout, updateUserDetails, updateUserPassword } from "./api";
 
 const mapbox = document.getElementById("map");
 const loginForm = document.querySelector(".form--login");
 const logoutBtn = document.querySelector(".nav__el--logout");
 const updateUserForm = document.querySelector(".form-user-data");
+const passwordUpdateForm = document.querySelector(".form-user-settings");
 
 if (mapbox) showMap(mapbox);
 if (loginForm) {
@@ -21,7 +22,6 @@ if (loginForm) {
 
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-console.log(updateUserForm);
 if (updateUserForm) {
   const nameField = document.getElementById("name");
   const emailField = document.getElementById("email");
@@ -32,5 +32,22 @@ if (updateUserForm) {
       name: nameField.value,
       email: emailField.value,
     });
+  });
+}
+
+console.log(passwordUpdateForm);
+if (passwordUpdateForm) {
+  const currentPassField = document.getElementById("password-current");
+  const newPassField = document.getElementById("password");
+  const confirmPassField = document.getElementById("password-confirm");
+
+  passwordUpdateForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await updateUserPassword({
+      oldPassword: currentPassField.value,
+      newPassword: newPassField.value,
+      confirmNewPassword: confirmPassField.value,
+    });
+    passwordUpdateForm.reset();
   });
 }
