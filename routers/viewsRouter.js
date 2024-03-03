@@ -4,6 +4,8 @@ const controllers = require("../controllers");
 
 router.use(controllers.auth.isLoggedIn);
 
+router.get("/me", controllers.views.getMe);
+
 router.get("/", controllers.views.getToursOverview);
 
 router.get("/tour/:slug", controllers.views.getTour);

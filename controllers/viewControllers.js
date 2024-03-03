@@ -22,3 +22,10 @@ exports.getTour = catchAsync(async (req, res) => {
 
 exports.getLoginForm = (req, res) =>
   res.status(200).render("login", { title: "Log in to your account" });
+
+exports.getMe = catchAsync(async (req, res) => {
+  if (res.locals.user)
+    return res.status(200).render("account", { title: "About User" });
+
+  res.redirect("/login");
+});

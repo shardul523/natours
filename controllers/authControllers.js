@@ -90,6 +90,7 @@ exports.isAuthenticated = catchAsync(async (req, res, next) => {
     return next(new AppError("The password was changed, please login again!"));
 
   req.user = user;
+  res.locals.user = user;
 
   next();
 });
