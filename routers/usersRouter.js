@@ -15,7 +15,7 @@ router.patch("/update-my-password", controllers.auth.updatePassword);
 router
   .route("/me")
   .get(controllers.users.getMe, controllers.users.getUserById)
-  .patch(controllers.users.updateMe)
+  .patch(controllers.users.uploadUserPhoto, controllers.users.updateMe)
   .delete(controllers.users.deleteMe);
 
 router.use(controllers.auth.isAuthorized("admin"));

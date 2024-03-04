@@ -1,6 +1,24 @@
+const multer = require("multer");
 const { User } = require("../models");
 const { catchAsync, AppError } = require("../utils");
 const factory = require("./handlersfactory");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "public/img/users"),
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split("/")[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) return cb(null, true);
+  cb(new AppError("Not an image! Please upload a valid image.", 400), false);
+};
+
+const upload = multer({ storage, fileFilter });
+
+exports.uploadUserPhoto = upload.single("photo");
 
 exports.getAllUsers = factory.getAll(User);
 
@@ -21,12 +39,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       ),
     );
 
-  // 2) Update allowed fields
-  const allowedFields = ["name", "photo", "email"];
-
-  allowedFields.forEach((field) => {
-    if (req.body[field]) req.user[field] = req.body[field];
-  });
+  if (req.body.name) req.user.name = req.body.name;
+  if (req.body.email) req.user.email = req.body.email;
+  if (req.file) req.user.photo = req.file.filename;
 
   await req.user.save({ validateModifiedOnly: true });
 
