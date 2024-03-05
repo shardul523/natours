@@ -43,7 +43,9 @@ export function logout() {
 
 export function updateUserDetails(details) {
   axios
-    .patch("/api/v1/users/me", details)
+    .patch("/api/v1/users/me", details, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
     .then((res) => {
       const { status } = res.data;
 

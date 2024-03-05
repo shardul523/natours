@@ -38,7 +38,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         400,
       ),
     );
-
+  console.log(req.file);
   if (req.body.name) req.user.name = req.body.name;
   if (req.body.email) req.user.email = req.body.email;
   if (req.file) req.user.photo = req.file.filename;

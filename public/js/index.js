@@ -25,17 +25,19 @@ if (logoutBtn) logoutBtn.addEventListener("click", logout);
 if (updateUserForm) {
   const nameField = document.getElementById("name");
   const emailField = document.getElementById("email");
+  const photoField = document.getElementById("photo");
 
   updateUserForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    updateUserDetails({
-      name: nameField.value,
-      email: emailField.value,
-    });
+    const form = new FormData();
+
+    form.append("name", nameField.value);
+    form.append("email", emailField.value);
+    form.append("photo", photoField.files[0]);
+    updateUserDetails(form);
   });
 }
 
-console.log(passwordUpdateForm);
 if (passwordUpdateForm) {
   const currentPassField = document.getElementById("password-current");
   const newPassField = document.getElementById("password");
